@@ -1,0 +1,24 @@
+name: Build Android APK
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Android SDK packages
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Build and verify APK
+        run: bash scripts/build-apk.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FastShare-APK
+          path: dist/FastShare.apk
+          if-no-files-found: error

@@ -1,0 +1,5 @@
+/dist/
+*.idsig
+*.jks
+*.keystore
+*.p12
