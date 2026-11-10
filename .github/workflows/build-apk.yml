@@ -9,12 +9,21 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install Android SDK packages
-        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+        run: |
+          sdk="$RUNNER_TEMP/fastshare-android-sdk"
+          mkdir -p "$sdk/platforms" "$sdk/build-tools"
+          cd "$RUNNER_TEMP"
+          curl --fail --silent --show-error --location --retry 3 --output platform.zip https://dl.google.com/android/repository/platform-35_r02.zip
+          curl --fail --silent --show-error --location --retry 3 --output build-tools.zip https://dl.google.com/android/repository/build-tools_r35_linux.zip
+          unzip -q platform.zip -d "$sdk/platforms"
+          unzip -q build-tools.zip -d "$sdk/build-tools"
+          mv "$sdk/build-tools/android-15" "$sdk/build-tools/35.0.0"
+          echo "ANDROID_SDK_ROOT=$sdk" >> "$GITHUB_ENV"
       - name: Build and verify APK
         run: bash scripts/build-apk.sh
       - uses: actions/upload-artifact@v4
